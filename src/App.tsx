@@ -99,9 +99,9 @@ export default function App() {
         <span className="card-accent" />
         <span className="card-copy">
           <span className="card-heading">
-            <strong>{note.title.trim() || "Untitled note"}</strong><ChevronRight size={20} />
+            <strong lang="my">{note.title.trim() || "Untitled note"}</strong><ChevronRight size={20} />
           </span>
-          <span className="preview">{note.content.trim() || "Nothing written yet…"}</span>
+          <span className="preview" lang="my">{note.content.trim() || "Nothing written yet…"}</span>
           <time>{formatDate(note.updatedAt)}</time>
         </span>
       </button>
@@ -120,7 +120,7 @@ export default function App() {
         </header>
 
         <label className="search-box">
-          <Search size={19} /><input value={query} onChange={(e) => setQuery(e.target.value)}
+          <Search size={19} /><input lang="my" value={query} onChange={(e) => setQuery(e.target.value)}
             placeholder="Search titles and notes" aria-label="Search notes" />
           {query && <button onClick={() => setQuery("")} aria-label="Clear search"><X size={17} /></button>}
         </label>
@@ -149,10 +149,10 @@ export default function App() {
             <button className="delete-button" onClick={() => setPendingDelete(selected)}><Trash2 size={17} /><span>Delete</span></button>
           </header>
           <div className="editor-body">
-            <input ref={titleRef} className="title-input" value={selected.title}
+            <input ref={titleRef} className="title-input" lang="my" dir="auto" value={selected.title}
               onChange={(e) => updateNote("title", e.target.value)} placeholder="Note title" maxLength={100} />
             <span className="title-rule" />
-            <textarea value={selected.content} onChange={(e) => updateNote("content", e.target.value)}
+            <textarea lang="my" dir="auto" value={selected.content} onChange={(e) => updateNote("content", e.target.value)}
               placeholder="Write down a thought, a fragment, or something worth remembering…" />
           </div>
           <footer className="editor-footer"><span>{selected.content.length} characters</span><span>Updated {formatDate(selected.updatedAt)}</span></footer>
