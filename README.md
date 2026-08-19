@@ -1,6 +1,6 @@
-# Sage Notes PWA
+# Lwin Car Info Notes PWA
 
-A private, installable notes app with instant search, editing, press-and-hold deletion, offline support, and automatic on-device saving.
+A private, installable car information notes app with instant search, editing, press-and-hold deletion, offline support, and automatic on-device saving.
 
 ## Run locally
 

@@ -1,7 +1,7 @@
 {
-  "name": "Sage Notes",
-  "short_name": "Sage Notes",
-  "description": "A calm, private notebook that saves everything on your device.",
+  "name": "Lwin Car Info Notes",
+  "short_name": "Lwin Car Notes",
+  "description": "A private notebook for car information that saves everything on your device.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

@@ -6,8 +6,11 @@ button { border: 0; }
 .app-shell { width: min(1180px, calc(100% - 48px)); height: min(820px, calc(100dvh - 48px)); min-height: 600px; margin: 24px auto; display: grid; grid-template-columns: 350px 1fr; overflow: hidden; border: 1px solid #d7d7cc; border-radius: 28px; background: #fbf8f0; box-shadow: 0 30px 80px #343b3424; }
 .list-pane { min-width: 0; padding: 30px 22px 18px; display: flex; flex-direction: column; color: #f8f4e9; background: #29302b; }
 .brand-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+.brand-lockup { min-width: 0; display: flex; align-items: center; gap: 10px; }
+.logo-badge { width: 68px; height: 48px; flex: none; display: grid; place-items: center; overflow: hidden; border-radius: 10px; background: #f8f6ef; box-shadow: 0 5px 14px #0003; }
+.logo-badge img { width: 66px; height: 42px; object-fit: contain; display: block; }
 .eyebrow { color: #aeb9ac; font-size: 10px; font-weight: 800; letter-spacing: .2em; }
-h1 { margin: 4px 0 0; font-family: Georgia, serif; font-size: 29px; letter-spacing: .02em; }
+h1 { margin: 4px 0 0; font-family: Georgia, serif; font-size: 20px; line-height: 1.05; letter-spacing: .01em; }
 .round-button { width: 46px; height: 46px; display: grid; place-items: center; border-radius: 50%; color: #202622; background: #97a88f; box-shadow: 0 10px 24px #0004; cursor: pointer; }
 .search-box { height: 48px; padding: 0 14px; display: flex; align-items: center; gap: 10px; border: 1px solid #ffffff1c; border-radius: 14px; color: #aeb8ac; background: #ffffff0e; }
 .search-box input { min-width: 0; flex: 1; border: 0; outline: 0; color: #fff; background: transparent; }
@@ -58,4 +61,5 @@ textarea { width: 100%; min-height: 0; padding: 0; flex: 1; resize: none; border
   .editor-body { padding: 38px 26px 16px; }
   .editor-footer { padding: 0 26px max(8px, env(safe-area-inset-bottom)); }
   .delete-button span { display: none; }
+  .editor-pane.open { touch-action: pan-y; }
 }

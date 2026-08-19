@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type TouchEvent } from "react";
 import { ArrowLeft, Check, ChevronRight, Plus, Search, Trash2, X } from "lucide-react";
 
 type Note = { id: string; title: string; content: string; createdAt: number; updatedAt: number };
@@ -20,6 +20,7 @@ export default function App() {
   const [loaded, setLoaded] = useState(false);
   const [pendingDelete, setPendingDelete] = useState<Note | null>(null);
   const titleRef = useRef<HTMLInputElement>(null);
+  const swipeStart = useRef<{ x: number; y: number } | null>(null);
   const selected = notes.find((note) => note.id === selectedId) ?? null;
 
   useEffect(() => {
@@ -63,6 +64,21 @@ export default function App() {
     setPendingDelete(null);
   };
 
+  const startSwipe = (event: TouchEvent<HTMLElement>) => {
+    const touch = event.touches[0];
+    swipeStart.current = { x: touch.clientX, y: touch.clientY };
+  };
+
+  const finishSwipe = (event: TouchEvent<HTMLElement>) => {
+    if (!swipeStart.current) return;
+    const touch = event.changedTouches[0];
+    const deltaX = touch.clientX - swipeStart.current.x;
+    const deltaY = Math.abs(touch.clientY - swipeStart.current.y);
+    swipeStart.current = null;
+
+    if (deltaX > 80 && deltaY < 70) setSelectedId(null);
+  };
+
   const NoteCard = ({ note }: { note: Note }) => {
     const timer = useRef<number | null>(null);
     const longPressed = useRef(false);
@@ -96,7 +112,10 @@ export default function App() {
     <main className="app-shell">
       <section className={`list-pane ${selected ? "has-editor" : ""}`}>
         <header className="brand-row">
-          <div><span className="eyebrow">MY NOTEBOOK</span><h1>Sage Notes</h1></div>
+          <div className="brand-lockup">
+            <span className="logo-badge"><img src="./lwin-logo.png" alt="LWIN Car Sales Center" /></span>
+            <div><span className="eyebrow">CAR INFO NOTEBOOK</span><h1>Lwin Car Info Notes</h1></div>
+          </div>
           <button className="round-button" onClick={addNote} aria-label="New note"><Plus /></button>
         </header>
 
@@ -121,7 +140,8 @@ export default function App() {
         </div>
       </section>
 
-      <section className={`editor-pane ${selected ? "open" : ""}`} aria-hidden={!selected}>
+      <section className={`editor-pane ${selected ? "open" : ""}`} aria-hidden={!selected}
+        onTouchStart={startSwipe} onTouchEnd={finishSwipe}>
         {selected && <>
           <header className="editor-header">
             <button className="back-button" onClick={() => setSelectedId(null)}><ArrowLeft size={20} />Notes</button>
