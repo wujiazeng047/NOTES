@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef, useState, type TouchEvent } from "react";
-import { ArrowLeft, Check, ChevronRight, Plus, Search, Trash2, X } from "lucide-react";
+import { useEffect, useMemo, useRef, useState, type ChangeEvent, type TouchEvent } from "react";
+import { ArrowLeft, Check, ChevronRight, Download, Plus, Search, Trash2, Upload, X } from "lucide-react";
 
 type Note = { id: string; title: string; content: string; createdAt: number; updatedAt: number };
 const STORAGE_KEY = "sage-notes-v1";
@@ -20,6 +20,7 @@ export default function App() {
   const [loaded, setLoaded] = useState(false);
   const [pendingDelete, setPendingDelete] = useState<Note | null>(null);
   const titleRef = useRef<HTMLInputElement>(null);
+  const restoreInputRef = useRef<HTMLInputElement>(null);
   const swipeStart = useRef<{ x: number; y: number } | null>(null);
   const selected = notes.find((note) => note.id === selectedId) ?? null;
 
@@ -79,6 +80,70 @@ export default function App() {
     if (deltaX > 80 && deltaY < 70) setSelectedId(null);
   };
 
+  const exportBackup = async () => {
+    const date = new Date().toISOString().slice(0, 10);
+    const fileName = `lwin-car-info-notes-backup-${date}.json`;
+    const backup = JSON.stringify({
+      app: "Lwin Car Info Notes",
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      notes,
+    }, null, 2);
+    const file = new File([backup], fileName, { type: "application/json" });
+
+    try {
+      if (navigator.share && navigator.canShare?.({ files: [file] })) {
+        await navigator.share({
+          title: "Lwin Car Info Notes Backup",
+          text: "Save this backup to iCloud Drive or Files.",
+          files: [file],
+        });
+        return;
+      }
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") return;
+    }
+
+    const url = URL.createObjectURL(file);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = fileName;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const restoreBackup = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+
+    try {
+      const parsed = JSON.parse(await file.text());
+      const incoming: Note[] = Array.isArray(parsed) ? parsed : parsed.notes;
+      const valid = Array.isArray(incoming) && incoming.every((note) =>
+        typeof note.id === "string" &&
+        typeof note.title === "string" &&
+        typeof note.content === "string" &&
+        typeof note.createdAt === "number" &&
+        typeof note.updatedAt === "number");
+
+      if (!valid) throw new Error("Invalid backup");
+      if (!window.confirm(`Restore ${incoming.length} notes from this backup? Existing notes will be kept.`)) return;
+
+      setNotes((current) => {
+        const merged = new Map(current.map((note) => [note.id, note]));
+        incoming.forEach((note) => {
+          const existing = merged.get(note.id);
+          if (!existing || note.updatedAt >= existing.updatedAt) merged.set(note.id, note);
+        });
+        return [...merged.values()].sort((a, b) => b.updatedAt - a.updatedAt);
+      });
+      window.alert(`${incoming.length} notes restored successfully.`);
+    } catch {
+      window.alert("This file is not a valid Lwin Car Info Notes backup.");
+    }
+  };
+
   const NoteCard = ({ note }: { note: Note }) => {
     const timer = useRef<number | null>(null);
     const longPressed = useRef(false);
@@ -126,6 +191,12 @@ export default function App() {
         </label>
 
         <div className="list-meta"><span>{query ? `${filtered.length} found` : `${notes.length} notes`}</span><span>Press and hold to delete</span></div>
+
+        <div className="backup-actions">
+          <button onClick={exportBackup}><Download size={15} />Backup to Files</button>
+          <button onClick={() => restoreInputRef.current?.click()}><Upload size={15} />Restore backup</button>
+          <input ref={restoreInputRef} className="file-input" type="file" accept="application/json,.json" onChange={restoreBackup} />
+        </div>
 
         <div className="note-list">
           {filtered.map((note) => <NoteCard note={note} key={note.id} />)}

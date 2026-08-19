@@ -1,6 +1,10 @@
 # Lwin Car Info Notes PWA
 
-A private, installable car information notes app with instant search, editing, press-and-hold deletion, offline support, and automatic on-device saving.
+A private, installable car information notes app with instant search, editing, press-and-hold deletion, offline support, automatic on-device saving, and external backup/restore through iCloud Drive or Files.
+
+## Back up and restore
+
+Use **Backup to Files** to export a dated JSON backup through the iPhone share sheet, then choose **Save to Files** and select iCloud Drive. Use **Restore backup** to select that file on this or another iPhone. Restoring merges the backup with any existing notes.
 
 ## Run locally
 
