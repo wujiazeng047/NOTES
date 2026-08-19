@@ -21,6 +21,8 @@ export default function App() {
   const [pendingDelete, setPendingDelete] = useState<Note | null>(null);
   const [actionNote, setActionNote] = useState<Note | null>(null);
   const [toast, setToast] = useState("");
+  const [selectionMode, setSelectionMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const titleRef = useRef<HTMLInputElement>(null);
   const swipeStart = useRef<{ x: number; y: number } | null>(null);
   const selected = notes.find((note) => note.id === selectedId) ?? null;
@@ -102,6 +104,28 @@ export default function App() {
     }
     setActionNote(null);
     setToast("Copied to clipboard");
+  };
+
+  const toggleSelected = (noteId: string) => {
+    setSelectedIds((current) => {
+      const next = new Set(current);
+      if (next.has(noteId)) next.delete(noteId);
+      else next.add(noteId);
+      return next;
+    });
+  };
+
+  const exitSelectionMode = () => {
+    setSelectionMode(false);
+    setSelectedIds(new Set());
+  };
+
+  const deleteSelectedNotes = () => {
+    if (!selectedIds.size) return;
+    if (!window.confirm(`Delete ${selectedIds.size} selected notes? This cannot be undone.`)) return;
+    setNotes((current) => current.filter((note) => !selectedIds.has(note.id)));
+    exitSelectionMode();
+    setToast("Selected notes deleted");
   };
 
   const startSwipe = (event: TouchEvent<HTMLElement>) => {
@@ -187,6 +211,7 @@ export default function App() {
     const timer = useRef<number | null>(null);
     const longPressed = useRef(false);
     const start = () => {
+      if (selectionMode) return;
       longPressed.current = false;
       timer.current = window.setTimeout(() => {
         longPressed.current = true;
@@ -197,9 +222,13 @@ export default function App() {
     const stop = () => { if (timer.current) window.clearTimeout(timer.current); };
 
     return (
-      <button className="note-card" onPointerDown={start} onPointerUp={stop}
+      <button className={`note-card ${selectedIds.has(note.id) ? "note-selected" : ""}`} onPointerDown={start} onPointerUp={stop}
         onPointerCancel={stop} onPointerLeave={stop} onContextMenu={(e) => e.preventDefault()}
-        onClick={() => { if (!longPressed.current) setSelectedId(note.id); }}>
+        onClick={() => {
+          if (longPressed.current) return;
+          if (selectionMode) toggleSelected(note.id);
+          else setSelectedId(note.id);
+        }}>
         <span className="card-accent" />
         <span className="card-copy">
           <span className="card-heading">
@@ -208,6 +237,7 @@ export default function App() {
           <span className="preview" lang="my">{note.content.trim() || "Nothing written yet…"}</span>
           <time>{formatDate(note.updatedAt)}</time>
         </span>
+        {selectionMode && <span className={`select-mark ${selectedIds.has(note.id) ? "checked" : ""}`}>{selectedIds.has(note.id) && <Check size={14} />}</span>}
       </button>
     );
   };
@@ -238,6 +268,17 @@ export default function App() {
             <input id="restore-backup-input" className="file-input" type="file" accept="application/json,.json" onChange={restoreBackup} />
           </label>
         </div>
+
+        {!selectionMode ? (
+          <button className="select-mode-button" onClick={() => setSelectionMode(true)}>Select notes</button>
+        ) : (
+          <div className="selection-toolbar">
+            <span>{selectedIds.size} selected</span>
+            <button onClick={() => setSelectedIds(new Set(filtered.map((note) => note.id)))}>Select all</button>
+            <button className="bulk-delete" onClick={deleteSelectedNotes} disabled={!selectedIds.size}><Trash2 size={14} />Delete</button>
+            <button onClick={exitSelectionMode}>Cancel</button>
+          </div>
+        )}
 
         <div className="note-list">
           {filtered.map((note) => <NoteCard note={note} key={note.id} />)}

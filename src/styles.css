@@ -22,9 +22,20 @@ h1 { margin: 4px 0 0; font-family: Georgia, serif; font-size: 20px; line-height:
 .backup-actions button:active, .restore-button:active { opacity: .88; transform: scale(.99); }
 .backup-actions svg { flex: none; color: #c35b42; }
 .file-input { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); opacity: .001; white-space: nowrap; }
+.select-mode-button { width: 100%; margin-bottom: 12px; padding: 9px; border: 1px solid #ffffff10; border-radius: 10px; color: #aaa59e; background: transparent; font-size: 11px; cursor: pointer; }
+.selection-toolbar { margin-bottom: 12px; padding: 8px; display: grid; grid-template-columns: 1fr auto auto auto; align-items: center; gap: 6px; border: 1px solid #ffffff12; border-radius: 12px; background: #ffffff08; }
+.selection-toolbar span { padding-left: 4px; color: #d3cec5; font-size: 11px; white-space: nowrap; }
+.selection-toolbar button { padding: 7px 8px; display: flex; align-items: center; justify-content: center; gap: 4px; border-radius: 8px; color: #aaa59e; background: #ffffff08; font-size: 10px; cursor: pointer; }
+.selection-toolbar .bulk-delete { color: #ef858a; }
+.selection-toolbar button:disabled { opacity: .35; }
 .note-list { min-height: 0; flex: 1; overflow-y: auto; overscroll-behavior-y: contain; scrollbar-gutter: stable; -webkit-overflow-scrolling: touch; }
 .note-card { position: relative; width: 100%; min-height: 120px; margin-bottom: 10px; padding: 0; display: flex; overflow: hidden; border: 1px solid #ffffff0f; border-radius: 17px; color: inherit; text-align: left; background: linear-gradient(145deg, #292b2c, #222425); box-shadow: 0 9px 24px #0003; cursor: pointer; touch-action: pan-y; user-select: none; -webkit-user-select: none; }
 .note-card:active { opacity: .92; transform: scale(.995); }
+.note-card.note-selected { border-color: #b42a356e; background: linear-gradient(145deg, #342628, #292123); box-shadow: 0 0 0 1px #a6232d32, 0 9px 24px #0003; }
+.select-mark { position: absolute; top: 14px; right: 13px; width: 22px; height: 22px; display: grid; place-items: center; border: 1px solid #77736d; border-radius: 50%; color: #fff; background: #1c1e1f; }
+.select-mark.checked { border-color: #a9242e; background: #a9242e; }
+.note-card:has(.select-mark) .card-heading { padding-right: 31px; }
+.note-card:has(.select-mark) .card-heading > svg { display: none; }
 .card-accent { width: 4px; flex: none; background: linear-gradient(#b3252f, #d17a20); }
 .card-copy { min-width: 0; padding: 15px 15px 14px; display: flex; flex: 1; flex-direction: column; }
 .card-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
@@ -83,4 +94,6 @@ textarea { width: 100%; min-height: 240px; padding: 4px 0 32px; flex: 1; resize:
   .delete-button span { display: none; }
   .editor-pane.open { touch-action: pan-y; }
   .action-sheet { margin-bottom: max(8px, env(safe-area-inset-bottom)); }
+  .selection-toolbar { grid-template-columns: 1fr auto auto; }
+  .selection-toolbar span { grid-column: 1 / -1; }
 }
