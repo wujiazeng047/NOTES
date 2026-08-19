@@ -19,6 +19,8 @@ export default function App() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
   const [pendingDelete, setPendingDelete] = useState<Note | null>(null);
+  const [actionNote, setActionNote] = useState<Note | null>(null);
+  const [toast, setToast] = useState("");
   const titleRef = useRef<HTMLInputElement>(null);
   const restoreInputRef = useRef<HTMLInputElement>(null);
   const swipeStart = useRef<{ x: number; y: number } | null>(null);
@@ -35,6 +37,12 @@ export default function App() {
   useEffect(() => {
     if (loaded) localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
   }, [notes, loaded]);
+
+  useEffect(() => {
+    if (!toast) return;
+    const timer = window.setTimeout(() => setToast(""), 1800);
+    return () => window.clearTimeout(timer);
+  }, [toast]);
 
   const filtered = useMemo(() => {
     const term = query.trim().toLowerCase();
@@ -63,6 +71,38 @@ export default function App() {
     setNotes((current) => current.filter((note) => note.id !== pendingDelete.id));
     if (selectedId === pendingDelete.id) setSelectedId(null);
     setPendingDelete(null);
+  };
+
+  const duplicateNote = (note: Note) => {
+    const now = Date.now();
+    const duplicate: Note = {
+      ...note,
+      id: crypto.randomUUID(),
+      title: note.title.trim() ? `${note.title} (Copy)` : "Untitled note (Copy)",
+      createdAt: now,
+      updatedAt: now,
+    };
+    setNotes((current) => [duplicate, ...current]);
+    setActionNote(null);
+    setToast("Note duplicated");
+  };
+
+  const copyNoteText = async (note: Note) => {
+    const text = [note.title.trim(), note.content.trim()].filter(Boolean).join("\n\n");
+    try {
+      await navigator.clipboard.writeText(text || "Untitled note");
+    } catch {
+      const area = document.createElement("textarea");
+      area.value = text || "Untitled note";
+      area.style.position = "fixed";
+      area.style.opacity = "0";
+      document.body.appendChild(area);
+      area.select();
+      document.execCommand("copy");
+      area.remove();
+    }
+    setActionNote(null);
+    setToast("Copied to clipboard");
   };
 
   const startSwipe = (event: TouchEvent<HTMLElement>) => {
@@ -152,7 +192,7 @@ export default function App() {
       timer.current = window.setTimeout(() => {
         longPressed.current = true;
         navigator.vibrate?.(30);
-        setPendingDelete(note);
+        setActionNote(note);
       }, 650);
     };
     const stop = () => { if (timer.current) window.clearTimeout(timer.current); };
@@ -240,6 +280,23 @@ export default function App() {
           </div>
         </div>
       )}
+
+      {actionNote && (
+        <div className="modal-backdrop action-backdrop" role="presentation" onClick={() => setActionNote(null)}>
+          <div className="action-sheet" role="dialog" aria-modal="true" aria-labelledby="note-actions-title" onClick={(e) => e.stopPropagation()}>
+            <div className="action-heading">
+              <span id="note-actions-title">{actionNote.title.trim() || "Untitled note"}</span>
+              <small>Choose an action</small>
+            </div>
+            <button onClick={() => duplicateNote(actionNote)}>Duplicate note</button>
+            <button onClick={() => copyNoteText(actionNote)}>Copy text</button>
+            <button className="action-delete" onClick={() => { setPendingDelete(actionNote); setActionNote(null); }}>Delete note</button>
+            <button className="action-cancel" onClick={() => setActionNote(null)}>Cancel</button>
+          </div>
+        </div>
+      )}
+
+      {toast && <div className="toast" role="status">{toast}</div>}
     </main>
   );
 }
