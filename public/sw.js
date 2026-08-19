@@ -1,4 +1,4 @@
-const CACHE = "lwin-car-info-notes-v10";
+const CACHE = "lwin-car-info-notes-v11";
 const SHELL = ["./", "./index.html", "./manifest.webmanifest", "./lwin-logo.png"];
 self.addEventListener("install", (event) => event.waitUntil(
   caches.open(CACHE).then((cache) => cache.addAll(SHELL)).then(() => self.skipWaiting()),

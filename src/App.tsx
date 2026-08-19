@@ -22,7 +22,6 @@ export default function App() {
   const [actionNote, setActionNote] = useState<Note | null>(null);
   const [toast, setToast] = useState("");
   const titleRef = useRef<HTMLInputElement>(null);
-  const restoreInputRef = useRef<HTMLInputElement>(null);
   const swipeStart = useRef<{ x: number; y: number } | null>(null);
   const selected = notes.find((note) => note.id === selectedId) ?? null;
 
@@ -234,8 +233,10 @@ export default function App() {
 
         <div className="backup-actions">
           <button onClick={exportBackup}><Download size={15} />Backup to Files</button>
-          <button onClick={() => restoreInputRef.current?.click()}><Upload size={15} />Restore backup</button>
-          <input ref={restoreInputRef} className="file-input" type="file" accept="application/json,.json" onChange={restoreBackup} />
+          <label className="restore-button" htmlFor="restore-backup-input">
+            <Upload size={15} />Restore backup
+            <input id="restore-backup-input" className="file-input" type="file" accept="application/json,.json" onChange={restoreBackup} />
+          </label>
         </div>
 
         <div className="note-list">
